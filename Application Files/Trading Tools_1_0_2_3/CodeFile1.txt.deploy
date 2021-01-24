@@ -1,0 +1,285 @@
+﻿//double high = 0, low = 0, out_14,out_23, out_38, out_50, out_61, out_76, out_85, out_161, out_261;
+//double lim_100, lim_161, lim_261, lim_100a, lim_161a, lim_261a;
+//double lim2_100, lim2_161, lim2_261, lim2_100a, lim2_161a, lim2_261a;
+//double pipValue;
+//double targetPrice = 0, targetPrice2 = 0;
+//int direction;
+//int decimals;
+//string resFormat, dollarFormat;
+
+//// Get input
+//if (this.textBox_fibo_input_high.Text != "")
+//    high = double.Parse(this.textBox_fibo_input_high.Text);
+//else
+//{
+//    MessageBox.Show("No entry in \"High\" field!");
+//    this.textBox_fibo_input_high.Focus();
+//    return;
+//}
+//if (this.textBox_fibo_input_low.Text != "")
+//    low = double.Parse(this.textBox_fibo_input_low.Text);
+//else
+//{
+//    MessageBox.Show("No entry in \"Low\" field!");
+//    this.textBox_fibo_input_low.Focus();
+//    return;
+//}
+
+//if (low >= high)
+//{
+//    MessageBox.Show("High (" + high.ToString() + ") must be strictly higher than Low (" + low.ToString() + ")!", "Input Error!");
+//    this.textBox_fibo_input_high.Focus();
+//    this.textBox_fibo_input_high.SelectAll();
+//    return;
+//}
+
+//direction = this.comboBox_fibo_input_direction.SelectedIndex;
+//pipValue = double.Parse(this.textBox_fibo_input_pipvalue.Text);
+//decimals = this.comboBox_fibo_input_decimals.SelectedIndex;
+
+
+
+
+/// <summary>
+		/// Specific print function for the flagpole tab page.
+		/// </summary>
+		/// <param name="e">A reference to the PrintPageEventArgs to use for the printing.</param>
+		/// <param name="sender">The print document used.</param>
+		/// <param name="pr">Reference to the rectangular area to print in.</param>
+		/// <param name="index">The index of the data in the CFlapoles object that should be printed.</param>
+		private void printFlagpoleTabPage(ref PrintPageEventArgs e, ref object sender, ref RectangleF pr, int index)
+		{
+			StringFormat cntrFormat = new StringFormat();
+			StringFormat lftFormat = new StringFormat();
+			cntrFormat.Alignment = StringAlignment.Center;
+			cntrFormat.LineAlignment = StringAlignment.Near;
+			lftFormat.Alignment = StringAlignment.Near;
+			lftFormat.LineAlignment = StringAlignment.Near;
+			float tmp = 0;
+
+			tmp = e.Graphics.MeasureString("F", this._font_head1U).Height;
+			pr.Y += tmp;
+			pr.Height -= tmp;
+
+			e.Graphics.DrawString("Flagpole - Data", this._font_head1U, Brushes.Black, pr, cntrFormat);
+			tmp = e.Graphics.MeasureString("F", this._font_head1U).Height;
+			pr.Y += tmp;
+			pr.Height -= tmp;
+
+			e.Graphics.DrawString("Input Data:", this._font_head3, Brushes.Black, pr, lftFormat);
+			tmp = e.Graphics.MeasureString("ID", this._font_head3).Height;
+			pr.Height -= tmp;
+			pr.Y += tmp;
+			// Collect the print data
+			Dictionary<string, string> tmpData = flagpoles.PrintInData(index);
+
+			tmp = pr.Width / 3;
+			RectangleF tmpRec = new RectangleF();
+			tmpRec.Width = tmp;
+			tmpRec.X = pr.X;
+			tmpRec.Y = pr.Y;
+			string tmpStr = "";
+			float tsl = 0;
+			tmpRec.Height = pr.Height;
+			tsl += e.Graphics.MeasureString("Date:", this._font_normalBoldU).Width;
+			tmpStr = tmpData["Date"];
+			tsl += e.Graphics.MeasureString(tmpStr, this._font_normal).Width;
+			tmpRec.X += (tmp - tsl) / 2;
+
+			e.Graphics.DrawString("Date:", this._font_normalBoldU, Brushes.Black, tmpRec, lftFormat);
+			tmpRec.X += e.Graphics.MeasureString("Date:", this._font_normalBoldU).Width;
+			e.Graphics.DrawString(tmpStr, this._font_normal, Brushes.Black, tmpRec, lftFormat);
+			tmpRec.X = tmp;
+
+			tsl = e.Graphics.MeasureString("Time:", this._font_normalBoldU).Width;
+			tsl += e.Graphics.MeasureString(tmpData["Time"], this._font_normal).Width;
+			tmpRec.X += (tmp - tsl) / 2;
+			e.Graphics.DrawString("Time:", this._font_normalBoldU, Brushes.Black, tmpRec, lftFormat);
+			tmpRec.X += e.Graphics.MeasureString("Time:", this._font_normalBoldU).Width;
+			e.Graphics.DrawString(tmpData["Time"], this._font_normal, Brushes.Black, tmpRec, lftFormat);
+			tmpRec.X = 2 * tmp;
+
+			tsl = e.Graphics.MeasureString("Currency Pair:", this._font_normalBoldU).Width;
+			tsl += e.Graphics.MeasureString(tmpData["Currency Pair"], this._font_normal).Width;
+			tmpRec.X += (tmp - tsl) / 2;
+			e.Graphics.DrawString("Currency Pair:", this._font_normalBoldU, Brushes.Black, tmpRec, lftFormat);
+			tmpRec.X += e.Graphics.MeasureString("Currency Pair:", this._font_normalBoldU).Width;
+			e.Graphics.DrawString(tmpData["Currency Pair"], this._font_normal, Brushes.Black, tmpRec, lftFormat);
+
+			pr.Y += e.Graphics.MeasureString("CPT", this._font_normalBoldU).Height * (float)1.5;
+
+			tmpData.Remove("Date");
+			tmpData.Remove("Time");
+			tmpData.Remove("Currency Pair");
+
+			PrintData(ref e, ref pr, tmpData, 4);
+
+			// Get output data
+			tmpData.Clear();
+			tmpData = this.flagpoles.PrintOutData(index);
+			pr.Y += e.Graphics.MeasureString("DUMMY", this._font_normalBold).Height;
+
+			e.Graphics.DrawString("Output Data:", this._font_head3, Brushes.Black, pr, lftFormat);
+			pr.Y += e.Graphics.MeasureString("OD", this._font_head3).Height * (float)1.5;
+
+			PrintData(ref e, ref pr, tmpData, 4);
+
+
+		}
+//resFormat = SetNumberFormat(decimals);
+//dollarFormat = "$#,##0.00";
+
+
+//// Calculate Fibo levels
+//// Set up as default direction for calculation purposes
+//double res = high - low;
+//out_14 = high - res * 0.146;
+//out_23 = high - res * 0.236;
+//out_38 = high - res * 0.382;
+//out_50 = high - res * 0.500;
+//out_61 = high - res * 0.618;
+//out_76 = high - res * 0.764;
+//out_85 = high - res * 0.854;
+//if (direction == 0)
+//{
+//    out_161 = high - res * 1.618;
+//    out_261 = high - res * 2.618;
+//}
+//else
+//{
+//    out_161 = low + res * 1.618;
+//    out_261 = low + res * 2.618;
+//}
+
+//// Display results
+//if (direction == 0)   //Up
+//{
+//    this.textBox_fibo_146.Text = Math.Round(out_14, decimals).ToString(resFormat);
+//    this.textBox_fibo_236.Text = Math.Round(out_23, decimals).ToString(resFormat);
+//    this.textBox_fibo_382.Text = Math.Round(out_38, decimals).ToString(resFormat);
+//    this.textBox_fibo_500.Text = Math.Round(out_50, decimals).ToString(resFormat);
+//    this.textBox_fibo_618.Text = Math.Round(out_61, decimals).ToString(resFormat);
+//    this.textBox_fibo_764.Text = Math.Round(out_76, decimals).ToString(resFormat);
+//}
+//else   // Down
+//{
+//    this.textBox_fibo_146.Text = Math.Round(out_85, decimals).ToString(resFormat);
+//    this.textBox_fibo_236.Text = Math.Round(out_76, decimals).ToString(resFormat);
+//    this.textBox_fibo_382.Text = Math.Round(out_61, decimals).ToString(resFormat);
+//    this.textBox_fibo_500.Text = Math.Round(out_50, decimals).ToString(resFormat);
+//    this.textBox_fibo_618.Text = Math.Round(out_38, decimals).ToString(resFormat);
+//    this.textBox_fibo_764.Text = Math.Round(out_23, decimals).ToString(resFormat);
+//}
+//this.textBox_fibo_1618.Text = Math.Round(out_161, decimals).ToString(resFormat);
+//this.textBox_fibo_2618.Text = Math.Round(out_261, decimals).ToString(resFormat);
+
+//// Calculate Limit levels
+//switch (this.comboBox_fibo_limit_target.SelectedIndex)
+//{
+//    case 0:			// 14% level
+//        targetPrice = direction == 0 ? out_14 : out_85;
+//        break;
+//    case 1:			// 23% level
+//        targetPrice = direction == 0 ? out_23 : out_76;
+//        break;
+//    case 2:			// 38% level
+//        targetPrice = direction == 0 ? out_38 : out_61;
+//        break;
+//    case 3:			// 50% level
+//        targetPrice = out_50;
+//        break;
+//    case 4:			// 61% level
+//        targetPrice = direction == 0 ? out_61 : out_38;
+//        break;
+//    case 5:			// 76% level
+//        targetPrice = direction == 0 ? out_76 : out_23;
+//        break;
+//}
+
+//switch (this.comboBox_fibo_limit2_target.SelectedIndex)
+//{
+//    case 0:			// 14% level
+//        targetPrice2 = direction == 0 ? out_14 : out_85;
+//        break;
+//    case 1:			// 23% level
+//        targetPrice2 = direction == 0 ? out_23 : out_76;
+//        break;
+//    case 2:			// 38% level
+//        targetPrice2 = direction == 0 ? out_38 : out_61;
+//        break;
+//    case 3:			// 50% level
+//        targetPrice2 = out_50;
+//        break;
+//    case 4:			// 61% level
+//        targetPrice2 = direction == 0 ? out_61 : out_38;
+//        break;
+//    case 5:			// 76% level
+//        targetPrice2 = direction == 0 ? out_76 : out_23;
+//        break;
+//}
+
+//// Calculate the limits
+//res = direction == 0 ? high - targetPrice : targetPrice - low;
+//double res2 = direction == 0 ? high - targetPrice2 : targetPrice2 - low;
+//lim_100 = direction == 0 ? high : low;
+//lim2_100 = direction == 0 ? high : low;
+//lim_161 = direction == 0 ? res * 1.618 + targetPrice : targetPrice - res * 1.618;
+//lim_261 = direction == 0 ? targetPrice + res * 2.618 : targetPrice - res * 2.618;
+//lim2_161 = direction == 0 ? res2 * 1.618 + targetPrice2 : targetPrice2 - res2 * 1.618;
+//lim2_261 = direction == 0 ? targetPrice2 + res2 * 2.618 : targetPrice2 - res2 * 2.618;
+//// These following calculations needs to be reaplaced when we have a proper system for deciding wich currency we are presently using so that currency specific properties can be used.
+//lim_100a = Math.Round(Math.Abs(targetPrice - lim_100), decimals) * 10000 * pipValue;
+//lim_161a = Math.Round(Math.Abs(lim_161 - targetPrice), decimals) * 10000 * pipValue;
+//lim_261a = Math.Round(Math.Abs(lim_261 - targetPrice), decimals) * 10000 * pipValue;
+//lim2_100a = Math.Round(Math.Abs(targetPrice2 - lim2_100), decimals) * 10000 * pipValue;
+//lim2_161a = Math.Round(Math.Abs(lim2_161 - targetPrice2), decimals) * 10000 * pipValue;
+//lim2_261a = Math.Round(Math.Abs(lim2_261 - targetPrice2), decimals) * 10000 * pipValue;
+
+//// Display limit data
+//this.textBox_fibo_limit_targetPrice.Text = Math.Round(targetPrice, decimals).ToString(resFormat);
+//this.textBox_fibo_limit_1000.Text = Math.Round(lim_100, decimals).ToString(resFormat);
+//this.textBox_fibo_limit_1618.Text = Math.Round(lim_161, decimals).ToString(resFormat);
+//this.textBox_fibo_limit_2618.Text = Math.Round(lim_261, decimals).ToString(resFormat);
+//this.textBox_fibo_limit_1000_amount.Text = Math.Round(lim_100a, 2).ToString(dollarFormat);
+//this.textBox_fibo_limit_1618_amount.Text = Math.Round(lim_161a, 2).ToString(dollarFormat);
+//this.textBox_fibo_limit_2618_amount.Text = Math.Round(lim_261a, 2).ToString(dollarFormat);
+//// limit 2 level
+//this.textBox_fibo_limit2_targetPrice.Text = Math.Round(targetPrice2, decimals).ToString(resFormat);
+//this.textBox_fibo_limit2_1000.Text = Math.Round(lim2_100, decimals).ToString(resFormat);
+//this.textBox_fibo_limit2_1618.Text = Math.Round(lim2_161, decimals).ToString(resFormat);
+//this.textBox_fibo_limit2_2618.Text = Math.Round(lim2_261, decimals).ToString(resFormat);
+//this.textBox_fibo_limit2_1000_amount.Text = Math.Round(lim2_100a, 2).ToString(dollarFormat);
+//this.textBox_fibo_limit2_1618_amount.Text = Math.Round(lim2_161a, 2).ToString(dollarFormat);
+//this.textBox_fibo_limit2_2618_amount.Text = Math.Round(lim2_261a, 2).ToString(dollarFormat);
+
+
+
+// From Print procedures
+
+Echo("PrintArea post: " + printArea.ToString());
+			Echo("Footer: " + footerHeight.ToString());
+			Echo("print point: " + printPoint.ToString());
+
+
+			//StringFormat cname = new StringFormat();
+			//cname.Alignment = StringAlignment.Center;
+			//cname.LineAlignment = StringAlignment.Near;
+			//RectangleF prnRect = this.printDocument.DefaultPageSettings.PrintableArea;
+			//RectangleF currRect = prnRect;
+			//PointF printPoint = new PointF(currRect.X, currRect.Y);
+			//int lineHeightNormal = 18;
+			//this.printDocument.OriginAtMargins = true;
+			//e.Graphics.DrawString("Jotrafin", this._font_CompanyLogoHeader, Brushes.DarkBlue, currRect, cname);
+			//currRect.Y += 45;
+			//e.Graphics.DrawString("Johannesson Trading & Financing", this._font_CompnayNameHeader, Brushes.Teal, currRect, cname);
+			//currRect.Y += 5 * lineHeightNormal;
+			//int doc_width = this.printDocument.DefaultPageSettings.Bounds.Width;
+			//int doc_height = this.printDocument.DefaultPageSettings.Bounds.Height;
+			//int pa_top = (int)Math.Round(this.printDocument.DefaultPageSettings.PrintableArea.Top, 0);
+			//int pa_left = (int)Math.Round(this.printDocument.DefaultPageSettings.PrintableArea.Left, 0);
+			//int pa_height = (int)Math.Round(this.printDocument.DefaultPageSettings.PrintableArea.Height, 0);
+			//int pa_width = (int)Math.Round(this.printDocument.DefaultPageSettings.PrintableArea.Width, 0);
+			//int pa_right = (int)Math.Round(this.printDocument.DefaultPageSettings.PrintableArea.Right, 0);
+			//int xpos = pa_left;
+			//Pen resSupDiv = new Pen(Color.Black, 1);
+			//Pen dividerPen = new Pen(Color.Black, 3);
